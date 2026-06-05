@@ -42,10 +42,22 @@ jobs:
       matrix:
         distro:
           - rockylinux10
+          - ubuntu2604
           - ubuntu2404
           - ubuntu2204
           - debian13
           - debian12
+        playbook:
+          - converge.yml
+          - converge-mariadb.yml
+        exclude:
+          # Exclude distros which already default to MariaDB.
+          - distro: rockylinux10
+            playbook: converge-mariadb.yml
+          - distro: debian12
+            playbook: converge-mariadb.yml
+          - distro: debian13
+            playbook: converge-mariadb.yml
 
     steps:
       - name: Check out the codebase.
@@ -65,6 +77,7 @@ jobs:
       - name: Disable AppArmor on Debian.
         run: |
             set -x
+            sudo apt-get update
             sudo apt-get install apparmor-profiles
             sudo ln -s /etc/apparmor.d/usr.sbin.mysqld /etc/apparmor.d/disable/
             sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.mysqld
@@ -76,3 +89,4 @@ jobs:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
           MOLECULE_DISTRO: ${{ matrix.distro }}
+          MOLECULE_PLAYBOOK: ${{ matrix.playbook }}
