@@ -47,6 +47,17 @@ jobs:
           - ubuntu2204
           - debian13
           - debian12
+        playbook:
+          - converge.yml
+          - converge-mariadb.yml
+        exclude:
+          # Exclude distros which already default to MariaDB.
+          - distro: rockylinux10
+            playbook: converge-mariadb.yml
+          - distro: debian12
+            playbook: converge-mariadb.yml
+          - distro: debian13
+            playbook: converge-mariadb.yml
 
     steps:
       - name: Check out the codebase.
@@ -78,3 +89,4 @@ jobs:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
           MOLECULE_DISTRO: ${{ matrix.distro }}
+          MOLECULE_PLAYBOOK: ${{ matrix.playbook }}
